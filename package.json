@@ -1,6 +1,6 @@
 {
   "name": "ctim",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "keywords": [],
   "type": "module",
@@ -11,7 +11,7 @@
     "dev": "node ./run.mjs",
     "lint": "eslint . && prettier --check src",
     "lint:fix": "eslint --fix . && prettier --write src",
-    "ctm": "node ./scripts/ctm.mjs",
+    "ctim": "node ./scripts/ctim.mjs",
     "prepack": "unbuild",
     "release": "pnpm test && changelogen --release && npm publish && git push --follow-tags",
     "test": "pnpm lint && pnpm test:types && pnpm build && pnpm test:dist",
@@ -19,11 +19,11 @@
   },
   "exports": {
     ".": "./dist/index.mjs",
-    "./cli": "./bin/ctm.mjs"
+    "./cli": "./bin/ctim.mjs"
   },
   "types": "./dist/index.d.ts",
   "bin": {
-    "ctm": "./bin/ctm.mjs"
+    "ctim": "./bin/ctim.mjs"
   },
   "files": [
     "bin",

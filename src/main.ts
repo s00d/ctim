@@ -5,8 +5,8 @@ import { checkEngines } from './utils/engines'
 
 export const main = defineCommand({
     meta: {
-        name: 'ctm',
-        description: 'ctm CLI',
+        name: 'ctim',
+        description: 'ctim CLI',
     },
     subCommands: commands,
     async setup(ctx) {

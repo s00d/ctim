@@ -1,7 +1,7 @@
 /* eslint-disable no-var */
 
 declare global {
-    var __ctm_cli__:
+    var __ctim_cli__:
         | undefined
         | {
         entry: string

@@ -1,4 +1,4 @@
-CTM
+ctim
 
 ```markdown
 # Проект
@@ -8,7 +8,7 @@ CTM
 ## Установка
 
 ```bash
-npm install ctm
+npm install ctim
 ```
 
 ## Команды
