@@ -67,7 +67,6 @@ export default defineCommand({
         const locales = await downloadLocales(host);
 
         for (let i = 0; i <= locales.length - 1; i += 1) {
-            // eslint-disable-next-line no-await-in-loop
             await downloadTranslation(host, dir, locales[i]);
         }
     },
