@@ -146,7 +146,8 @@ export default defineCommand({
         },
         name: {
             type: 'string',
-            required: true
+            required: true,
+            description: 'release prefix name',
         },
         type: {
             type: 'string',
