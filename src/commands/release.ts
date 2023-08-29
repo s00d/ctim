@@ -5,7 +5,6 @@ import { rsort, valid, inc, parse } from 'semver';
 import type { ReleaseType } from 'semver';
 import {promisify} from 'util';
 
-
 const execAsync = promisify(exec);
 
 async function isGitRepository(): Promise<boolean> {
@@ -18,11 +17,45 @@ async function isGitRepository(): Promise<boolean> {
         return false;
     }
 }
-// Функция для получения последних 50 тегов в Git
-async function getLastTags(name: string, releaseType: ReleaseType): Promise<string> {
+
+async function isGhInstalled(): Promise<boolean> {
+    const command = 'gh --version';
+    const options: ExecSyncOptionsWithStringEncoding = { encoding: 'utf8' };
+    try {
+        await execAsync(command, options);
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+
+// Function to create a release using `gh` utility
+async function createGithubRelease(tagName: string, tree: string): Promise<void> {
+    const command = `gh release create ${tagName} --target ${tree}`;
+    const options = {};
+    try {
+        const result = await execAsync(command, options);
+        console.log(result.stdout);
+    } catch (error: any) {
+        console.error('Ошибка при создании релиза:', error.message);
+    }
+}
+
+async function getGithubLastReleaseVersion() {
+    const command = 'gh release list -L50';
+    const { stdout } = await execAsync(command, { encoding: 'utf8' });
+    return stdout.trim().split('\n').map(release => release.replace(/\t.+/g, ''));
+}
+
+async function getGitLastReleaseVersion() {
     const command = 'git for-each-ref --count=50 --sort=-taggerdate --format="%(refname:short)" refs/tags';
     const { stdout } = await execAsync(command, { encoding: 'utf8' });
-    const tags = stdout.trim().split('\n').filter(tag => tag.startsWith(name)).map(tag => tag.slice(name.length));
+    return stdout.trim().split('\n');
+}
+
+// Функция для получения последних 50 тегов в Git
+async function getLastTags(releases: string[], name: string, releaseType: ReleaseType): Promise<string> {
+    const tags = releases.filter(tag => tag.startsWith(name)).map(tag => tag.slice(name.length));
     const validTags = tags.filter((tag) => valid(tag));
 
     if (releaseType === 'major') {
@@ -154,6 +187,10 @@ export default defineCommand({
             default: 'patch',
             description: 'release type (major, minor, or patch)',
         },
+        'create-release': {
+            type: 'string',
+            description: 'create a release in GitHub',
+        },
     },
     async run(ctx) {
         if (!await isGitRepository()) {
@@ -166,6 +203,7 @@ export default defineCommand({
         const version = ctx.args.version
         let name = ctx.args.name
         const type = ctx.args.type as ReleaseType;
+        const createRelease = ctx.args['create-release'];
 
         if (!name.endsWith('-')) {
             name += '-'
@@ -180,7 +218,8 @@ export default defineCommand({
             if (version) {
                 lastTag = name + version;
             } else {
-                lastTag = await getLastTags(name, type);
+                const releases = createRelease ? await getGithubLastReleaseVersion() : await getGitLastReleaseVersion();
+                lastTag = await getLastTags(releases, name, type);
 
                 if (lastTag) {
                     lastTag = name + processTagName(lastTag, count, type) ?? null;
@@ -188,8 +227,17 @@ export default defineCommand({
             }
 
             if (lastTag) {
-                createAndPushTag(lastTag);
-                console.log(`Тег ${lastTag} успешно создан и запушен в Git.`);
+                if (createRelease) {
+                    if (await isGhInstalled()) {
+                        await createGithubRelease(lastTag, createRelease);
+                        console.log(`Release ${lastTag} successfully created in GitHub.`);
+                    } else {
+                        console.error('The `gh` utility is not installed. Unable to create a release in GitHub.');
+                    }
+                } else {
+                    createAndPushTag(lastTag);
+                    console.log(`Тег ${lastTag} успешно создан и запушен в Git.`);
+                }
             } else {
                 console.log(`Не найден тег с префиксом ${name}.`);
             }
