@@ -3,17 +3,17 @@ import axios from 'axios';
 import path from 'path';
 import { promises as fs, existsSync, mkdirSync } from 'fs';
 
-async function downloadLocales(host: string) {
-    console.debug(`Load available locales: https://${host}/api/v1/locales`);
-    const res = await axios.get(`https://${host}/api/v1/locales`);
+async function downloadLocales(host: string, localesRoute: string) {
+    console.log(`Load available locales: https://${host}${localesRoute}`);
+    const res = await axios.get(`https://${host}${localesRoute}`);
 
-    console.debug('locales:', JSON.stringify(Object.keys(res.data)));
+    console.log('locales:', JSON.stringify(Object.keys(res.data)));
     return Object.keys(res.data);
 }
 
-async function downloadTranslation(host: string, dir: string, locale: string) {
+async function downloadTranslation(host: string, localeRoute: string, dir: string, locale: string) {
     const filename = path.join(process.cwd(), `${dir}/${locale}.json`);
-    const url = `https://${host}/ui/api/getLocales?lang=${locale}`;
+    const url = `https://${host}${localeRoute}?lang=${locale}`;
 
     console.log(`refresh locale: ${locale}\n - URL: ${url}`);
 
@@ -60,14 +60,26 @@ export default defineCommand({
             default: '../src/lang',
             description: 'The directory to save the downloaded locales.',
         },
+        localesRoute: {
+            type: 'string',
+            default: '/api/v1/locales',
+            description: 'url to download locales',
+        },
+        localeRoute: {
+            type: 'string',
+            default: '/ui/api/getLocales',
+            description: 'url to download locale',
+        },
     },
     async run(ctx) {
         const host = ctx.args.host;
         const dir = ctx.args.dir;
-        const locales = await downloadLocales(host);
+        const localesRoute = ctx.args.localesRoute;
+        const localeRoute = ctx.args.localeRoute;
+        const locales = await downloadLocales(host, localesRoute);
 
         for (let i = 0; i <= locales.length - 1; i += 1) {
-            await downloadTranslation(host, dir, locales[i]);
+            await downloadTranslation(host, localeRoute, dir, locales[i]);
         }
     },
 });
