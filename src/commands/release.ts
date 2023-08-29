@@ -187,7 +187,7 @@ export default defineCommand({
             default: 'patch',
             description: 'release type (major, minor, or patch)',
         },
-        'create-release': {
+        'with-release': {
             type: 'string',
             description: 'create a release in GitHub',
         },
@@ -203,7 +203,7 @@ export default defineCommand({
         const version = ctx.args.version
         let name = ctx.args.name
         const type = ctx.args.type as ReleaseType;
-        const createRelease = ctx.args['create-release'];
+        const createRelease = ctx.args['with-release'];
 
         if (!name.endsWith('-')) {
             name += '-'
