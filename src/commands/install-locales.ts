@@ -1,17 +1,14 @@
-import {defineCommand} from 'citty'
-import {sharedArgs} from './_shared'
-import { ofetch } from "ofetch";
-import path from "path";
-import {promises as fs, existsSync, mkdirSync} from "fs";
-
-
+import { defineCommand } from 'citty';
+import axios from 'axios';
+import path from 'path';
+import { promises as fs, existsSync, mkdirSync } from 'fs';
 
 async function downloadLocales(host: string) {
     console.debug(`Load available locales: https://${host}/api/v1/locales`);
-    const res = await ofetch(`https://${host}/api/v1/locales`);
+    const res = await axios.get(`https://${host}/api/v1/locales`);
 
-    console.debug('locales:', JSON.stringify(Object.keys(res)));
-    return Object.keys(res);
+    console.debug('locales:', JSON.stringify(Object.keys(res.data)));
+    return Object.keys(res.data);
 }
 
 async function downloadTranslation(host: string, dir: string, locale: string) {
@@ -21,19 +18,9 @@ async function downloadTranslation(host: string, dir: string, locale: string) {
     console.log(`refresh locale: ${locale}\n - URL: ${url}`);
 
     try {
-        const response = await ofetch(url, {
-            parseResponse: (txt) => txt,
-            async onResponseError({ request, response, options }) {
-                // Log error
-                console.error(
-                    "[fetch response error]",
-                    request,
-                    response.status,
-                    response.body
-                );
-
-                throw new Error(`BAS_STATUS: ${response.status}`);
-            },
+        const response = await axios.get(url, {
+            responseType: 'text',
+            validateStatus: (status) => status >= 200 && status < 300,
         });
 
         const directory = path.dirname(filename);
@@ -41,7 +28,7 @@ async function downloadTranslation(host: string, dir: string, locale: string) {
             mkdirSync(directory, { recursive: true });
         }
 
-        await fs.writeFile(filename, response);
+        await fs.writeFile(filename, response.data);
 
         const stats = await fs.stat(filename);
         const fileSizeInBytes = stats.size;
@@ -63,7 +50,6 @@ export default defineCommand({
         description: 'install locales.',
     },
     args: {
-        ...sharedArgs,
         host: {
             type: 'string',
             required: true,
@@ -76,8 +62,8 @@ export default defineCommand({
         },
     },
     async run(ctx) {
-        const host = ctx.args.host
-        const dir = ctx.args.dir
+        const host = ctx.args.host;
+        const dir = ctx.args.dir;
         const locales = await downloadLocales(host);
 
         for (let i = 0; i <= locales.length - 1; i += 1) {
@@ -85,4 +71,4 @@ export default defineCommand({
             await downloadTranslation(host, dir, locales[i]);
         }
     },
-})
+});
