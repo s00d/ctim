@@ -4,4 +4,6 @@ const _rDefault = (r: any) => (r.default || r) as Promise<CommandDef>
 
 export const commands = {
     release: () => import('./release').then(_rDefault),
+    'install-locales': () => import('./install-locales').then(_rDefault),
+    'install-sublibs': () => import('./install-sublibs').then(_rDefault),
 } as const
