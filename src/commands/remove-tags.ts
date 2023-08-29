@@ -45,7 +45,6 @@ async function deleteReleasesWithPrefix(prefix: string): Promise<void> {
 
 async function deleteAllReleases(): Promise<void> {
     const releases = await getGithubLastReleaseVersion();
-    console.log(releases)
     for (const release of releases) {
         const command = `gh release delete ${release} --yes`;
         await execAsync(command);
