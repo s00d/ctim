@@ -1,12 +1,16 @@
-name: My Action
+name: Manual Workflow
 
 on:
-  repository_dispatch:
-    types: [action-event]
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'Person to greet'
+        required: true
+        default: 'World'
 
 jobs:
-  print-message:
+  greet:
     runs-on: ubuntu-latest
     steps:
-      - name: Print message
-        run: echo "This is my custom message!"
+      - name: Say hello
+        run: echo "Hello, ${{ github.event.inputs.name }}!"
