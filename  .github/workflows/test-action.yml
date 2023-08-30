@@ -1,0 +1,12 @@
+name: My Action
+
+on:
+  repository_dispatch:
+    types: [action-event]
+
+jobs:
+  print-message:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print message
+        run: echo "This is my custom message!"
