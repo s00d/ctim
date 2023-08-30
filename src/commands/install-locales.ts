@@ -72,10 +72,7 @@ export default defineCommand({
         },
     },
     async run(ctx) {
-        const host = ctx.args.host;
-        const dir = ctx.args.dir;
-        const localesRoute = ctx.args.localesRoute;
-        const localeRoute = ctx.args.localeRoute;
+        const { host, dir, localesRoute, localeRoute  } = ctx.args;
         const locales = await downloadLocales(host, localesRoute);
 
         for (let i = 0; i <= locales.length - 1; i += 1) {

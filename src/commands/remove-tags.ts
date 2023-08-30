@@ -2,17 +2,24 @@ import { defineCommand } from 'citty';
 import { promisify } from 'util';
 import { exec } from 'child_process';
 import { sharedArgs } from './_shared';
+import {createConfirmation, getGithubLastReleaseVersion} from "./_helpers";
 
 const execAsync = promisify(exec);
 
-async function deleteTagsWithPrefix(prefix: string): Promise<void> {
+async function deleteTagsWithPrefix(prefix: string, force: boolean): Promise<void> {
+    if (!await createConfirmation(`Are you sure you want to delete all tags with prefix ${prefix}?`, force)) {
+        return;
+    }
     const command = `git ls-remote --tags origin | awk '{print $2}' | grep -e '^refs/tags/${prefix}' | xargs -I {} git push --delete origin {}`;
     const options = {};
     const result = await execAsync(command, options);
     console.log(result.stdout);
 }
 
-async function deleteAllTags(): Promise<void> {
+async function deleteAllTags(force: boolean): Promise<void> {
+    if (!await createConfirmation(`Are you sure you want to delete all tags?`, force)) {
+        return;
+    }
     const command = 'git ls-remote --tags origin | awk \'{print $2}\' | xargs -I {} git push --delete origin {}';
     const options = {};
     const result = await execAsync(command, options);
@@ -26,13 +33,10 @@ async function pushChanges(): Promise<void> {
     console.log(result.stdout);
 }
 
-async function getGithubLastReleaseVersion() {
-    const command = 'gh release list -L50';
-    const { stdout } = await execAsync(command, { encoding: 'utf8' });
-    return stdout.trim().split('\n').map(release => release.replace(/\t.+/g, '')).filter((tag) => tag !== '');
-}
-
-async function deleteReleasesWithPrefix(prefix: string): Promise<void> {
+async function deleteReleasesWithPrefix(prefix: string, force: boolean): Promise<void> {
+    if (!await createConfirmation(`Are you sure you want to delete all releases with prefix ${prefix}?`, force)) {
+        return;
+    }
     const releases = await getGithubLastReleaseVersion();
     for (const release of releases) {
         if (release.startsWith(prefix)) {
@@ -43,7 +47,10 @@ async function deleteReleasesWithPrefix(prefix: string): Promise<void> {
     }
 }
 
-async function deleteAllReleases(): Promise<void> {
+async function deleteAllReleases(force: boolean): Promise<void> {
+    if (!await createConfirmation(`Are you sure you want to delete all releases?`, force)) {
+        return;
+    }
     const releases = await getGithubLastReleaseVersion();
     for (const release of releases) {
         const command = `gh release delete ${release} --yes`;
@@ -67,18 +74,23 @@ export default defineCommand({
             type: 'string',
             description: 'prefix for tags/releases to be deleted',
         },
+        force: {
+            type: 'boolean',
+            default: false,
+            description: 'force the release creation',
+        },
     },
     async run(ctx) {
-        const { prefix } = ctx.args;
+        const { prefix, force } = ctx.args;
         if (prefix) {
-            await deleteTagsWithPrefix(prefix);
+            await deleteTagsWithPrefix(prefix, force);
             if (ctx.args['with-release']) {
-                await deleteReleasesWithPrefix(prefix);
+                await deleteReleasesWithPrefix(prefix, force);
             }
         } else {
-            await deleteAllTags();
+            await deleteAllTags(force);
             if (ctx.args['with-release']) {
-                await deleteAllReleases();
+                await deleteAllReleases(force);
             }
         }
         await pushChanges();
