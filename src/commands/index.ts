@@ -8,4 +8,5 @@ export const commands = {
     'install-sublibs': () => import('./install-sublibs').then(_rDefault),
     'remove-tags': () => import('./remove-tags').then(_rDefault),
     'action-runner': () => import('./action-runner').then(_rDefault),
+    'logs': () => import('./logs').then(_rDefault),
 } as const
