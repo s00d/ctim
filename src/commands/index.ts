@@ -9,4 +9,5 @@ export const commands = {
     'remove-tags': () => import('./remove-tags').then(_rDefault),
     'action-runner': () => import('./action-runner').then(_rDefault),
     'logs': () => import('./logs').then(_rDefault),
+    'dump': () => import('./dump').then(_rDefault),
 } as const

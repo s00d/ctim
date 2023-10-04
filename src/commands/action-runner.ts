@@ -2,16 +2,17 @@ import { defineCommand } from 'citty';
 import { sharedArgs } from './_shared';
 import axios from "axios";
 
-function githubRequest(url: string, token: string, method = 'get', data: {[key: string]: any} = {}) {
-   return axios({
-       method: method,
-       url: url,
-       headers: {
-           Accept: 'application/vnd.github.v3+json',
-           Authorization: `token ${token}`,
-       },
-       data: data,
-   });
+async function githubRequest(url: string, token: string, method = 'get', data: { [key: string]: any } = {}) {
+    let res = await axios({
+        method: method,
+        url: url,
+        headers: {
+            Accept: 'application/vnd.github.v3+json',
+            Authorization: `token ${token}`,
+        },
+        data: data,
+    });
+    return await res.data;
 }
 
 export default defineCommand({
@@ -66,16 +67,17 @@ export default defineCommand({
             const response = await githubRequest(
                 `https://api.github.com/repos/${ctx.args.owner}/${ctx.args.repo}/actions/workflows`,
                 token
-            )
+            ) as { workflows: [ { id?: string, name: string } ] }
 
 
-            const workflows = response.data.workflows;
+            const workflows = response.workflows;
             const workflow = workflows.find((wf: {name: string}) => wf.name === ctx.args.workflow);
 
-            const workflow_id = workflow.id ?? null;
-            if (!workflow_id) {
+            if (!workflow) {
                 throw new Error(`Workflow with name "${ctx.args.workflow}" not found`);
             }
+
+            const workflow_id = workflow.id ?? null;
 
             console.log(`workflow_id - ${workflow_id}`)
 
