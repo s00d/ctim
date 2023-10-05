@@ -1,5 +1,4 @@
-import inquirer from "inquirer";
-import type {Answers, QuestionCollection} from "inquirer";
+import readline from 'node:readline';
 import {promisify} from "util";
 import {exec, ExecSyncOptionsWithStringEncoding} from "child_process";
 import chalk from "chalk";
@@ -12,15 +11,17 @@ export async function createConfirmation(message: string, force: boolean): Promi
         return true;
     }
 
-    const question: QuestionCollection<Answers> = {
-        type: 'confirm',
-        name: 'confirm',
-        message: chalk.yellow(message),
-        default: false,
-    };
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
 
-    const { confirm } = await inquirer.prompt(question);
-    return confirm;
+    return new Promise(resolve => {
+        rl.question(chalk.yellow(`${message} (y/n) `), answer => {
+            rl.close();
+            resolve(answer.toLowerCase() === 'y' || answer.toLowerCase() === 'yes');
+        });
+    });
 }
 
 export async function isGitRepository(): Promise<boolean> {
@@ -31,6 +32,16 @@ export async function isGitRepository(): Promise<boolean> {
         return true;
     } catch (error) {
         return false;
+    }
+}
+
+export async function getGitTreeName() {
+    const command = 'git rev-parse --abbrev-ref HEAD';
+    const options: ExecSyncOptionsWithStringEncoding = { encoding: 'utf8' };
+    try {
+        return (await execAsync(command, options)).stdout.replace("\n", '');
+    } catch (error) {
+        return null;
     }
 }
 

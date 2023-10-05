@@ -1,6 +1,7 @@
 import { defineCommand } from 'citty';
 import { sharedArgs } from './_shared';
 import axios from "axios";
+import {getGitTreeName} from "./_helpers";
 
 async function githubRequest(url: string, token: string, method = 'get', data: { [key: string]: any } = {}) {
     let res = await axios({
@@ -50,13 +51,12 @@ export default defineCommand({
             description: 'The name of the event that triggers the action.',
         },
         ref: {
-            type: 'string',
-            default: 'main',
             description: 'The name of the ref',
         },
     },
     async run(ctx) {
         const token = ctx.args.token || process.env.CTIM_TOKEN;
+        const ref = ctx.args.ref || await getGitTreeName();
 
         if(!token) {
             throw new Error('token not found')
@@ -67,11 +67,11 @@ export default defineCommand({
             const response = await githubRequest(
                 `https://api.github.com/repos/${ctx.args.owner}/${ctx.args.repo}/actions/workflows`,
                 token
-            ) as { workflows: [ { id?: string, name: string } ] }
-
+            ) as { workflows: [ { id?: string, name: string, html_url: string } ] }
 
             const workflows = response.workflows;
-            const workflow = workflows.find((wf: {name: string}) => wf.name === ctx.args.workflow);
+            const workflow = workflows.find((wf) => wf.name === ctx.args.workflow && wf.html_url.includes(`/blob/${ref}/`));
+
 
             if (!workflow) {
                 throw new Error(`Workflow with name "${ctx.args.workflow}" not found`);
@@ -86,7 +86,7 @@ export default defineCommand({
                 token,
                 'POST',
                 {
-                    ref: ctx.args.ref, // or the branch you want to use
+                    ref: ref, // or the branch you want to use
                     inputs: ctx.args.inputs.split("&").reduce((obj, pair) => {
                         let [key, value] = pair.split("=");
                         // @ts-ignore

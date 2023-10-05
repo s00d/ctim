@@ -16,8 +16,12 @@ export default defineBuildConfig({
         'node:buffer',
         'node:path',
         'node:child_process',
+        'node:string_decoder',
+        'node:readable-stream',
         'node:process',
         'node:path',
         'node:os',
+        'node:util',
+        'node:readline',
     ],
 })
