@@ -1,6 +1,6 @@
 {
   "name": "ctim",
-  "version": "1.0.20",
+  "version": "1.0.21",
   "description": "",
   "keywords": [],
   "type": "module",
@@ -30,6 +30,13 @@
     "bin",
     "dist"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/s00d/ctim.git"
+  },
+  "bugs": {
+    "url": "https://github.com/s00d/ctim/issues"
+  },
   "devDependencies": {
     "@babel/cli": "^7.23.0",
     "@types/adm-zip": "^0.5.2",
