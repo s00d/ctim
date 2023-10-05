@@ -3,6 +3,7 @@ import {sharedArgs} from './_shared';
 import {execSync} from 'child_process';
 import * as fs from 'fs';
 import * as crypto from 'crypto';
+import path from "path";
 
 const algorithm = 'md5';
 
@@ -99,7 +100,9 @@ export default defineCommand({
                     .slice(1)
                     .filter(Boolean);
 
-                fs.rmSync(`${outputDir}/*.sql.gz`);
+                try {
+                    fs.rmSync(`${outputDir}/*.sql.gz`);
+                } catch (e: any){}
 
                 // Проходим по каждой таблице и создаем команду для дампа
                 for (const table of tables) {
@@ -128,22 +131,31 @@ export default defineCommand({
 
                 const sumContent = fileChecksums.map(({sum, file}) => `${sum} ${file}`).join('\n');
                 console.log(sumContent)
-                fs.writeFileSync(outputFile, sumContent);
+                const location = path.join(outputDir, outputFile);
 
-                console.log('Хеш-суммы файлов записаны в sum.txt');
+                if (fs.existsSync(location)) {
+                    fs.rmSync(location, { recursive: true, force: true });
+                }
+
+                fs.writeFileSync(location, sumContent);
+
+                console.info('Хеш-суммы файлов записаны в ' + location);
                 return;
             case 'check-hash':
                 const checksums = getFilesChecksums(outputDir);
-                const expectedSums = readChecksumFile(outputFile);
+
+                const locationsum = path.join(outputDir, outputFile);
+
+                const expectedSums = readChecksumFile(locationsum);
                 for (const {sum, file} of checksums) {
                     if (expectedSums[file]) {
                         if (sum === expectedSums[file]) {
-                            console.log(`Хеш-сумма для файла ${file} совпадает.`);
+                            console.info(`Хеш-сумма для файла ${file} совпадает.`);
                         } else {
-                            console.log(`Хеш-сумма для файла ${file} не совпадает.`);
+                            console.error(`Хеш-сумма для файла ${file} не совпадает.`);
                         }
                     } else {
-                        console.log(`Файл ${file} не найден в sum.txt.`);
+                        console.error(`Файл ${file} не найден в sum.txt.`);
                     }
                 }
                 return;
