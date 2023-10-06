@@ -2,13 +2,13 @@ import { defineCommand } from 'citty';
 import { sharedArgs } from './_shared';
 import axios from "axios";
 import {getGitOwner, getGitRepo, getGitTreeName, promptForWorkflowSelection} from "./_helpers";
-import HttpsProxyAgent from "https-proxy-agent";
+// import HttpsProxyAgent from "https-proxy-agent";
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+// process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 async function githubRequest(url: string, token: string, method = 'get', data: { [key: string]: any } = {}) {
     let res = await axios({
-        httpsAgent: HttpsProxyAgent({host: "127.0.0.1", port: "4034", rejectUnauthorized: false}),
+        // httpsAgent: HttpsProxyAgent({host: "127.0.0.1", port: "4034", rejectUnauthorized: false}),
         method: method,
         url: url,
         headers: {
