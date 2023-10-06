@@ -3,6 +3,7 @@ import {promisify} from "util";
 import {exec, ExecSyncOptionsWithStringEncoding} from "child_process";
 import chalk from "chalk";
 import {inc, parse, ReleaseType, rsort, valid} from "semver";
+import prompts from 'prompts';
 
 export const execAsync = promisify(exec);
 
@@ -32,6 +33,30 @@ export async function isGitRepository(): Promise<boolean> {
         return true;
     } catch (error) {
         return false;
+    }
+}
+
+export async function getGitOwner() {
+    const command = 'git remote get-url origin';
+    const options: ExecSyncOptionsWithStringEncoding = { encoding: 'utf8' };
+    try {
+        const repoUrl =  (await execAsync(command, options)).stdout.replace("\n", '');
+        const match = repoUrl.match(/github\.com[/:](.*?)\/(.*?)(\.git)?$/);
+        return match ? match[1] ?? null : null;
+    } catch (error) {
+        return null;
+    }
+}
+
+export async function getGitRepo() {
+    const command = 'git remote get-url origin';
+    const options: ExecSyncOptionsWithStringEncoding = { encoding: 'utf8' };
+    try {
+        const repoUrl =  (await execAsync(command, options)).stdout.replace("\n", '');
+        const match = repoUrl.match(/github\.com[/:](.*?)\/(.*?)(\.git)?$/);
+        return match ? match[2] ?? null : null;
+    } catch (error) {
+        return null;
     }
 }
 
@@ -177,4 +202,15 @@ export function processTagName(tagName: string, count: number, releaseType: Rele
     }
 
     console.error(chalk.red('Неверный формат имени тега.'));
+}
+
+export async function promptForWorkflowSelection(choices: Array<{ title: string, value: string|number }>) {
+    const response = await prompts({
+        type: 'select',
+        name: 'workflowIndex',
+        message: 'Select a workflow:',
+        choices: choices
+    });
+
+    return response.workflowIndex;
 }
