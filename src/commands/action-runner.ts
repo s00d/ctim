@@ -2,6 +2,7 @@ import { defineCommand } from 'citty';
 import { sharedArgs } from './_shared';
 import axios from "axios";
 import {createConfirmation, getGitOwner, getGitRepo, getGitTreeName, promptForWorkflowSelection} from "./_helpers";
+import chalk from "chalk";
 // import HttpsProxyAgent from "https-proxy-agent";
 
 // process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
@@ -68,7 +69,7 @@ export default defineCommand({
         }
 
         try {
-            console.log('get workflow_id')
+            console.info(chalk.green('Getting workflow_id from api'))
             const response = await githubRequest(
                 `https://api.github.com/repos/${owner}/${repo}/actions/workflows`,
                 token
@@ -81,15 +82,19 @@ export default defineCommand({
                     return { title: wf.name, value: wf.name }
                 });
                 workflow_select = await promptForWorkflowSelection(choices);
+                if (!workflow_select) {
+                    console.error(`Workflow not selected`);
+                    return;
+                }
             }
-
 
             const workflow = workflows.find((wf) => {
                 return wf.name === workflow_select && wf.html_url.includes(`/blob/${ref}/`)
             });
 
             if (!workflow) {
-                throw new Error(`Workflow with name "${ctx.args.workflow}" not found`);
+                console.error(`Workflow with name "${ctx.args.workflow}" not found`);
+                return;
             }
 
             const workflow_id = workflow.id ?? null;
@@ -97,7 +102,8 @@ export default defineCommand({
             const result = await createConfirmation("Run action?")
 
             if (!result) {
-                throw new Error(`Cancel run`);
+                console.error(`Cancel run`);
+                return;
             }
 
             await githubRequest(
