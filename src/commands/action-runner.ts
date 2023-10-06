@@ -1,7 +1,7 @@
 import { defineCommand } from 'citty';
 import { sharedArgs } from './_shared';
 import axios from "axios";
-import {getGitOwner, getGitRepo, getGitTreeName, promptForWorkflowSelection} from "./_helpers";
+import {createConfirmation, getGitOwner, getGitRepo, getGitTreeName, promptForWorkflowSelection} from "./_helpers";
 // import HttpsProxyAgent from "https-proxy-agent";
 
 // process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
@@ -93,6 +93,12 @@ export default defineCommand({
             }
 
             const workflow_id = workflow.id ?? null;
+
+            const result = await createConfirmation("Run action?")
+
+            if (!result) {
+                throw new Error(`Cancel run`);
+            }
 
             await githubRequest(
                 `https://api.github.com/repos/${owner}/${repo}/actions/workflows/${workflow_id}/dispatches`,

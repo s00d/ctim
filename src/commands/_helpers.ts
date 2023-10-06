@@ -1,4 +1,3 @@
-import readline from 'node:readline';
 import {promisify} from "util";
 import {exec, ExecSyncOptionsWithStringEncoding} from "child_process";
 import chalk from "chalk";
@@ -7,22 +6,20 @@ import prompts from 'prompts';
 
 export const execAsync = promisify(exec);
 
-export async function createConfirmation(message: string, force: boolean): Promise<boolean> {
+export async function createConfirmation(message: string, force: boolean = false): Promise<boolean> {
     if (force) {
         return true;
     }
 
-    const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
+    const response = await prompts({
+        type: 'toggle',
+        name: 'toggle',
+        message: chalk.yellow(`${message} (y/n)`),
+        initial: false,
+        active: 'yes',
+        inactive: 'no'
     });
-
-    return new Promise(resolve => {
-        rl.question(chalk.yellow(`${message} (y/n) `), answer => {
-            rl.close();
-            resolve(answer.toLowerCase() === 'y' || answer.toLowerCase() === 'yes');
-        });
-    });
+    return response.toggle;
 }
 
 export async function isGitRepository(): Promise<boolean> {
