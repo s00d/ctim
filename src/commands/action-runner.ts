@@ -3,6 +3,7 @@ import { sharedArgs } from './_shared';
 import axios from "axios";
 import {createConfirmation, getGitOwner, getGitRepo, getGitTreeName, promptForWorkflowSelection} from "./_helpers";
 import chalk from "chalk";
+import {existsSync, readFileSync} from "fs";
 // import HttpsProxyAgent from "https-proxy-agent";
 
 // process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
@@ -58,7 +59,12 @@ export default defineCommand({
         },
     },
     async run(ctx) {
-        const token = ctx.args.token || process.env.CTIM_TOKEN;
+        let token: string|null = ctx.args.token ?? null;
+        if (existsSync('.github_token')) {
+            token = readFileSync('.github_token', 'utf8') || null;
+        }
+        if(!token) token = process.env.CTIM_TOKEN ?? null;
+
         const owner = ctx.args.owner || await getGitOwner();
         const repo = ctx.args.repo || await getGitRepo();
         const ref = ctx.args.ref || await getGitTreeName();
