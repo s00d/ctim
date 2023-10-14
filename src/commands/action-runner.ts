@@ -61,7 +61,9 @@ export default defineCommand({
     async run(ctx) {
         let token: string|null = ctx.args.token ?? null;
         if (existsSync('.github_token')) {
-            token = readFileSync('.github_token', 'utf8') || null;
+            const fileContent = readFileSync('.github_token', 'utf8');
+            const lines = fileContent.split('\n');
+            token = lines[0] || null;
         }
         if(!token) token = process.env.CTIM_TOKEN ?? null;
 
