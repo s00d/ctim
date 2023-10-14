@@ -123,6 +123,9 @@ ctim action-runner --owner <owner> --repo <repo> --token <token> --workflow <wor
 - `--inputs`: Входные данные для действия в формате `key1=value1&key2=value2`. По умолчанию - пустая строка.
 - `--ref`: Имя ветки, на которой должно быть запущено действие. По умолчанию берет имя ветки из текущей папки`.
 
+#### token:
+-  Read access to `code` and `metadata`
+-  Read and Write access to `actions`, `administration`, and `workflows`
 
 ### Команда `dump`
 
