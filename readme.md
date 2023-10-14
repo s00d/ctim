@@ -127,6 +127,17 @@ ctim action-runner --owner <owner> --repo <repo> --token <token> --workflow <wor
 -  Read access to `code` and `metadata`
 -  Read and Write access to `actions`, `administration`, and `workflows`
 
+#### action
+
+```yaml
+name: action name
+
+on:
+  workflow_dispatch:
+
+# ....
+```
+
 ### Команда `dump`
 
 Это инструмент командной строки ля создания резервных копий и проверки типов в базе данных. Он предоставляет следующие функциональности: backup (резервное копирование), create-hash (создание хеша) и check-hash (проверка хеша).
