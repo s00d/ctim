@@ -131,7 +131,7 @@ export default defineCommand({
                 },
             )
 
-            console.log('GitHub action successfully triggered.');
+            console.log(`GitHub action successfully triggered. https://github.com/${owner}/${repo}/actions`);
         } catch (error) {
             console.error(`Error triggering GitHub action: ${error}`);
             throw error;
