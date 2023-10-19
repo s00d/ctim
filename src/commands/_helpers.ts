@@ -6,20 +6,26 @@ import prompts from 'prompts';
 
 export const execAsync = promisify(exec);
 
+export async function createPasswordPromt(message: string): Promise<string> {
+    const response = await prompts({
+        type: 'password',
+        name: 'password',
+        message: chalk.yellow(`${message}`),
+    });
+    return response.password;
+}
+
 export async function createConfirmation(message: string, force: boolean = false): Promise<boolean> {
     if (force) {
         return true;
     }
 
     const response = await prompts({
-        type: 'toggle',
-        name: 'toggle',
-        message: chalk.yellow(`${message} (y/n)`),
-        initial: false,
-        active: 'yes',
-        inactive: 'no'
+        type: 'confirm',
+        name: 'confirm',
+        message: chalk.yellow(`${message}`),
     });
-    return response.toggle;
+    return response.confirm;
 }
 
 export async function isGitRepository(): Promise<boolean> {

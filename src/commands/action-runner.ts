@@ -1,7 +1,14 @@
 import { defineCommand } from 'citty';
 import { sharedArgs } from './_shared';
 import axios from "axios";
-import {createConfirmation, getGitOwner, getGitRepo, getGitTreeName, promptForWorkflowSelection} from "./_helpers";
+import {
+    createConfirmation,
+    createPasswordPromt,
+    getGitOwner,
+    getGitRepo,
+    getGitTreeName,
+    promptForWorkflowSelection
+} from "./_helpers";
 import chalk from "chalk";
 import {existsSync, readFileSync} from "fs";
 // import HttpsProxyAgent from "https-proxy-agent";
@@ -66,6 +73,7 @@ export default defineCommand({
             token = lines[0] || null;
         }
         if(!token) token = process.env.CTIM_TOKEN ?? null;
+        if(!token) token = await createPasswordPromt('Enter github token') ?? null;
 
         const owner = ctx.args.owner || await getGitOwner();
         const repo = ctx.args.repo || await getGitRepo();
@@ -96,6 +104,7 @@ export default defineCommand({
                 }
             }
 
+            console.info(chalk.green(`search workflow in ${ref}`))
             const workflow = workflows.find((wf) => {
                 return wf.name === workflow_select && wf.html_url.includes(`/blob/${ref}/`)
             });
@@ -107,10 +116,10 @@ export default defineCommand({
 
             const workflow_id = workflow.id ?? null;
 
-            const result = await createConfirmation("Run action?")
+            const result = await createConfirmation(`Run "${workflow.name}"(${workflow.html_url}) action in "${ref}" tree?`)
 
             if (!result) {
-                console.error(`Cancel run`);
+                console.error(`Cancel`);
                 return;
             }
 
@@ -131,7 +140,7 @@ export default defineCommand({
                 },
             )
 
-            console.log(`GitHub action successfully triggered. https://github.com/${owner}/${repo}/actions`);
+            console.log(`GitHub action successfully triggered.\nActions: https://github.com/${owner}/${repo}/actions\nTree: https://github.com//${owner}/${repo}/tree/${ref}`);
         } catch (error) {
             console.error(`Error triggering GitHub action: ${error}`);
             throw error;
