@@ -5,7 +5,7 @@
 ## Установка
 
 ```bash
-npm install ctim
+npm i -g ctim
 
 ## Команды
 
