@@ -95,7 +95,14 @@ export default defineCommand({
 
             if (workflow_select === "") {
                 const choices = workflows.map((wf, index) => {
-                    return { title: wf.name, value: wf.name }
+                    let title = ' ' + wf.name + ' ';
+                    if (wf.name.toLowerCase().includes('prod')) {
+                        title = chalk.bold.bgRedBright.white(' !!!' +  title);
+                    }
+                    if (wf.name.toLowerCase().includes('test')) {
+                        title = chalk.bgBlue.white(' ' + title + ' ');
+                    }
+                    return { title: title, value: wf.name }
                 });
                 workflow_select = await promptForWorkflowSelection(choices);
                 if (!workflow_select) {
@@ -140,7 +147,7 @@ export default defineCommand({
                 },
             )
 
-            console.log(`GitHub action successfully triggered.\nActions: https://github.com/${owner}/${repo}/actions\nTree: https://github.com//${owner}/${repo}/tree/${ref}`);
+            console.log(`GitHub action successfully triggered.\nActions: https://github.com/${owner}/${repo}/actions\nTree: https://github.com/${owner}/${repo}/tree/${ref}`);
         } catch (error) {
             console.error(`Error triggering GitHub action: ${error}`);
             throw error;

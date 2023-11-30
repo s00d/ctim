@@ -1,6 +1,6 @@
 {
   "name": "ctim",
-  "version": "1.0.32",
+  "version": "1.0.34",
   "description": "",
   "keywords": [],
   "type": "module",
@@ -47,7 +47,7 @@
     "adm-zip": "^0.5.10",
     "axios": "^1.5.1",
     "changelogen": "^0.5.5",
-    "citty": "^0.1.4",
+    "citty": "^0.1.5",
     "clipboardy": "^3.0.0",
     "consola": "^3.2.3",
     "eslint": "^8.51.0",
