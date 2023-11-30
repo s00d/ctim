@@ -1,6 +1,6 @@
 {
   "name": "ctim",
-  "version": "1.0.34",
+  "version": "1.0.35",
   "description": "",
   "keywords": [],
   "type": "module",
@@ -15,8 +15,7 @@
     "prepack": "unbuild",
     "release": "pnpm test && changelogen --release && npm publish && git push --follow-tags",
     "test": "pnpm lint && pnpm test:types && pnpm build && pnpm test:dist",
-    "test:types": "tsc --noEmit",
-    "postinstall": "DEST=$HOME/.npm-run.plugin.zsh; mkdir -p $DEST && ln -fs \"$PWD/npm-run.plugin.zsh\" $DEST/npm-run.plugin.zsh && echo source $DEST/npm-run.plugin.zsh >> $HOME/.zshrc && echo \"All done! Please restart your zsh.\n\n\""
+    "test:types": "tsc --noEmit"
   },
   "exports": {
     ".": "./dist/index.mjs",
