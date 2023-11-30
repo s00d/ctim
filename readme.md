@@ -127,6 +127,11 @@ ctim action-runner --owner <owner> --repo <repo> --token <token> --workflow <wor
 -  Read access to `code` and `metadata`
 -  Read and Write access to `actions`, `administration`, and `workflows`
 
+![1](https://raw.githubusercontent.com/s00d/ctim/main/assets/1.jpeg)
+![2](https://raw.githubusercontent.com/s00d/ctim/main/assets/2.jpeg)
+![3](https://raw.githubusercontent.com/s00d/ctim/main/assets/3.jpeg)
+![4](https://raw.githubusercontent.com/s00d/ctim/main/assets/4.jpeg)
+
 #### action
 
 ```yaml
